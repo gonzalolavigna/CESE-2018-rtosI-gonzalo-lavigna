@@ -63,6 +63,10 @@ int main(void)
    // ---------- CONFIGURACIONES ------------------------------
    // Inicializar y configurar la plataforma
    boardConfig();
+   gpioInit( GPIO0, GPIO_OUTPUT );
+   gpioInit( GPIO1, GPIO_OUTPUT );
+   gpioInit( GPIO2, GPIO_OUTPUT );
+   gpioInit( GPIO3, GPIO_OUTPUT );
 
    // UART for debug messages
    debugPrintConfigUart( UART_USB, 115200 );
@@ -114,13 +118,14 @@ void myTask( void* taskParmPtr )
 
 	   	  delay = delay + 100 ;
 	   	   if (delay==1000)
-	   		  delay = 0;
+	   		  delay = 100;
 
-
+	      gpioWrite(GPIO0,ON);
 	      gpioWrite(LEDB,ON);
 	   	  //gpioToggle(LEDB);
 		  vTaskDelay(delay/portTICK_RATE_MS);
 		  gpioWrite(LEDB,OFF);
+		  gpioWrite(GPIO0,OFF);
 		  //gpioToggle(LEDB);
 		  //vTaskDelay((1000-delay)/portTICK_RATE_MS);
 		  vTaskDelayUntil(&tiempo_inicio_ciclo,(1000)/portTICK_RATE_MS);
