@@ -22,5 +22,8 @@
 #PROJECT_PATH = examples/c/sapi/bare_metal/bluetooth
 #PROJECT_NAME = hm10_uart_bridge
 
-PROJECT_PATH = examples/c/sapi/bare_metal/i2c/IMUs
-PROJECT_NAME = mpu9250
+#PROJECT_PATH = examples/c/sapi/bare_metal/i2c/IMUs
+#PROJECT_NAME = mpu9250
+
+PROJECT_PATH = practicas
+PROJECT_NAME = practica_01_01

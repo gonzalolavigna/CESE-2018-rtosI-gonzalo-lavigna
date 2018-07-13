@@ -63,6 +63,14 @@ int main(void)
    // ---------- CONFIGURACIONES ------------------------------
    // Inicializar y configurar la plataforma
    boardConfig();
+   gpioInit( GPIO0, GPIO_OUTPUT );
+   gpioInit( GPIO1, GPIO_OUTPUT );
+   gpioInit( GPIO2, GPIO_OUTPUT );
+   gpioInit( GPIO3, GPIO_OUTPUT );
+   gpioInit( GPIO4, GPIO_OUTPUT );
+   gpioInit( GPIO5, GPIO_OUTPUT );
+   gpioInit( GPIO6, GPIO_OUTPUT );
+   gpioInit( GPIO7, GPIO_OUTPUT );
 
    // UART for debug messages
    debugPrintConfigUart( UART_USB, 115200 );
@@ -107,6 +115,14 @@ void myTask( void* taskParmPtr )
    while(TRUE) {
       // Intercambia el estado del LEDB
       gpioToggle( LEDB );
+      gpioToggle(GPIO0);
+      gpioToggle(GPIO1);
+      gpioToggle(GPIO2);
+      gpioToggle(GPIO3);
+      gpioToggle(GPIO4);
+      gpioToggle(GPIO5);
+      gpioToggle(GPIO6);
+      gpioToggle(GPIO7);
       debugPrintlnString( "Blink!" );
       // Envia la tarea al estado bloqueado durante 500ms
       vTaskDelay( 500 / portTICK_RATE_MS );
