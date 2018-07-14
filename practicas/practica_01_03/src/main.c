@@ -36,7 +36,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-
+#include "debounceTec.h"
 // sAPI header
 #include "sapi.h"
 
@@ -52,9 +52,6 @@ DEBUG_PRINT_ENABLE;
 
 /*==================[declaraciones de funciones externas]====================*/
 
-// Prototipo de funcion de la tarea
-void myTask( void* taskParmPtr );
-
 /*==================[funcion principal]======================================*/
 
 // FUNCION PRINCIPAL, PUNTO DE ENTRADA AL PROGRAMA LUEGO DE ENCENDIDO O RESET.
@@ -66,15 +63,15 @@ int main(void)
 
    // UART for debug messages
    debugPrintConfigUart( UART_USB, 115200 );
-   debugPrintlnString( "Blinky con freeRTOS y sAPI." );
+   debugPrintlnString( "Practica 01 Ejercicio 03 con freeRTOS y sAPI." );
 
    // Led para dar se�al de vida
    gpioWrite( LED3, ON );
 
    // Crear tarea en freeRTOS
    xTaskCreate(
-      myTask,                     // Funcion de la tarea a ejecutar
-      (const char *)"myTask",     // Nombre de la tarea como String amigable para el usuario
+	  debounceTecUpdate,                     // Funcion de la tarea a ejecutar
+      (const char *)"debounceTec",     // Nombre de la tarea como String amigable para el usuario
       configMINIMAL_STACK_SIZE*2, // Cantidad de stack de la tarea
       0,                          // Parametros de tarea
       tskIDLE_PRIORITY+1,         // Prioridad de la tarea
@@ -98,19 +95,5 @@ int main(void)
 /*==================[definiciones de funciones internas]=====================*/
 
 /*==================[definiciones de funciones externas]=====================*/
-
-// Implementacion de funcion de la tarea
-void myTask( void* taskParmPtr )
-{
-   // ---------- CONFIGURACIONES ------------------------------
-   // ---------- REPETIR POR SIEMPRE --------------------------
-   while(TRUE) {
-      // Intercambia el estado del LEDB
-      gpioToggle( LEDB );
-      debugPrintlnString( "Blink!" );
-      // Envia la tarea al estado bloqueado durante 500ms
-      vTaskDelay( 500 / portTICK_RATE_MS );
-   }
-}
 
 /*==================[fin del archivo]========================================*/

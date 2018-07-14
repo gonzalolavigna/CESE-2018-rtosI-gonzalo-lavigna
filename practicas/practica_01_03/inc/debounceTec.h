@@ -1,4 +1,4 @@
-#define BUTTONS_TIME_PERIOD_MS 50
+#define BUTTONS_TIME_PERIOD_MS 40
 
 //Esto sirve para indicar el indice de la tecla, esto permite abstraernos de donde esta ubicada efectivamente
 //la tecla, esto lo podemso cambiar desde el .C
@@ -18,7 +18,7 @@ typedef enum {
 } fsmDebounce_t;
 
 void debounceTecInit(void);
-void debounceTecUpdate(void);
+void debounceTecUpdate(void* taskParmPtr);
 
 //Esta funcion devuelve el estado de la maquina de estado, permite saber siempre si la tecla indicada
 //en tecla_indice se encuetnra pulsada.
