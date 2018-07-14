@@ -37,8 +37,10 @@ void debounceTecUpdate(void* taskParmPtr){
 	TickType_t tiempo_inicio_ciclo;
 	TickType_t tiempo_tecla_presionada;
 	gpioInit( GPIO0, GPIO_OUTPUT );//DEBUG con Analizador Logico
+	gpioInit( GPIO1, GPIO_OUTPUT );//DEBUG con Analizador Logico
 	tiempo_inicio_ciclo = xTaskGetTickCount();
 	while(TRUE){
+		gpioWrite(GPIO1,ON);
 		for(i=0; i < TECLAS_VALIDAS ; i++){//Chequeo todas las posibles teclas, configuradas en el arreglo.
 			switch(teclaArray[i].state){
 			case BUTTON_UP:
@@ -75,6 +77,7 @@ void debounceTecUpdate(void* taskParmPtr){
 				break;
 			}
 		}
+		gpioWrite(GPIO1,OFF);
 		vTaskDelayUntil(&tiempo_inicio_ciclo,BUTTONS_TIME_PERIOD_MS/portTICK_RATE_MS);
 	}
 }

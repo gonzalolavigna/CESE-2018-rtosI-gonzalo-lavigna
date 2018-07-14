@@ -78,6 +78,7 @@ int main(void)
       0                           // Puntero a la tarea creada en el sistema
    );
 
+   debounceTecInit();
    // Iniciar scheduler
    vTaskStartScheduler();
 
