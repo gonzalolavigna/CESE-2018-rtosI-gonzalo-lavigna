@@ -35,9 +35,13 @@ bool_t sw_uart_config (uint16_t baudrate, gpioMap_t gpio_uart){
 	return TRUE;
 }
 
-void sw_uart_sent (uint8_t byte_a_transmitir){
-	uart_gpio.byte_a_transmitir = byte_a_transmitir;
-	uart_gpio.new_byte_available = TRUE;
+bool_t sw_uart_sent (uint8_t byte_a_transmitir){
+	if(uart_gpio.uart_state == UART_GPIO_IDLE){
+		uart_gpio.byte_a_transmitir = byte_a_transmitir;
+		uart_gpio.new_byte_available = TRUE;
+		return TRUE;
+	}
+	else return FALSE;
 }
 
 void sw_uart_update(void * taskParmPtr){

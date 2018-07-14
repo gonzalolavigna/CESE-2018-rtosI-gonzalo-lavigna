@@ -22,6 +22,6 @@ typedef enum {
 }uartGpioFsmState_t;
 
 void sw_uart_update(void * taskParmPtr);
-void sw_uart_sent (uint8_t byte_a_transmitir);
+bool_t sw_uart_sent (uint8_t byte_a_transmitir);
 bool_t sw_uart_config (uint16_t baudrate, gpioMap_t gpio_uart);
 
