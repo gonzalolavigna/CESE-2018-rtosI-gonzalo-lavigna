@@ -87,7 +87,7 @@ int main(void)
 
    //
    uartConfig( UART_USB, 115200 );
-   sw_uart_config(10,GPIO0);
+   sw_uart_config(100,GPIO0);
    // Iniciar scheduler
    vTaskStartScheduler();
 
