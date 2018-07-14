@@ -24,6 +24,7 @@ void ledInit(void){
 		led_array[i].tiempo_tecla_presionada = 0;
 		led_array[i].tiempo_restante_led_encendido = 0;
 	}
+	printf("LED Inicializado\n");
 }
 
 void ledUpdate(void* taskParmPtr){
