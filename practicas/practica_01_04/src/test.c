@@ -7,6 +7,7 @@ void testUpdate (void * taskParmPtr){
 	while(1){
 		if(uartReadByte(UART_USB,&uart_usb_byte_recibido)){
 			sw_uart_sent(uart_usb_byte_recibido);
+			uartWriteByte(UART_USB,uart_usb_byte_recibido);
 		}
 	}
 }
