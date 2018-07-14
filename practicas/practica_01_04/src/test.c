@@ -10,8 +10,9 @@ void testUpdate (void * taskParmPtr){
 				uartWriteByte(UART_USB,uart_usb_byte_recibido);
 			}
 			else {
-				printf("BYTE RECHAZADO:\n");
+				printf("\nBYTE RECHAZADO:");
 				uartWriteByte(UART_USB,uart_usb_byte_recibido);
+				printf("\n");
 			}
 		}
 	}
