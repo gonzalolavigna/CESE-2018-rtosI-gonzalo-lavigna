@@ -1,4 +1,8 @@
 #define BUTTONS_TIME_PERIOD_MS 40
+#include "sapi.h"
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
+#include "task.h"
 
 //Esto sirve para indicar el indice de la tecla, esto permite abstraernos de donde esta ubicada efectivamente
 //la tecla, esto lo podemso cambiar desde el .C
@@ -22,4 +26,5 @@ void debounceTecUpdate(void* taskParmPtr);
 
 //Esta funcion devuelve el estado de la maquina de estado, permite saber siempre si la tecla indicada
 //en tecla_indice se encuetnra pulsada.
-fsmDebounce_t getTeclaStatus (buttonGpioIndex_t tecla_index);
+bool_t getTeclaLiberada (buttonGpioIndex_t tecla_index);
+TickType_t getTeclaTiempoPresionada (buttonGpioIndex_t tecla_index);

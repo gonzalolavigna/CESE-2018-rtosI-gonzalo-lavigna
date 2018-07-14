@@ -1,9 +1,5 @@
-#include "sapi.h"								// <= Biblioteca sAPI
 #include "debounceTec.h"
 
-#include "FreeRTOS.h"
-#include "FreeRTOSConfig.h"
-#include "task.h"
 DEBUG_PRINT_ENABLE
 
 //Data de una tecla,
@@ -82,3 +78,9 @@ void debounceTecUpdate(void* taskParmPtr){
 	}
 }
 
+bool_t getTeclaLiberada (buttonGpioIndex_t tecla_index){
+	return teclaArray[tecla_index].tecla_liberada;
+}
+TickType_t getTeclaTiempoPresionada (buttonGpioIndex_t tecla_index){
+	return teclaArray[tecla_index].tiempo_tecla_presionada;
+}
