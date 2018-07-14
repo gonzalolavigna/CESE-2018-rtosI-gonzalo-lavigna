@@ -3,6 +3,6 @@
 #include "FreeRTOSConfig.h"
 #include "task.h"
 
-#define TEST_UART_DELAY_MS 20
+#define TEST_UART_DELAY_MS 10
 
 void testUpdate (void * taskParmPtr);

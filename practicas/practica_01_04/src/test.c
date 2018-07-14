@@ -13,10 +13,9 @@ void testUpdate (void * taskParmPtr){
 			}
 			else {
 				printf("\nBYTE RECHAZADO:%c\n",uart_usb_byte_recibido);
-				//uartWriteByte(UART_USB,uart_usb_byte_recibido);
-
 			}
 		}
 		gpioWrite(GPIO2,OFF);
+		vTaskDelay(TEST_UART_DELAY_MS/portTICK_PERIOD_MS);
 	}
 }
