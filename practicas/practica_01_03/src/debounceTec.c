@@ -64,7 +64,6 @@ void debounceTecUpdate(void* taskParmPtr){
 					teclaArray[i].state =BUTTON_UP;
 					teclaArray[i].tiempo_tecla_presionada = xTaskGetTickCount() - tiempo_tecla_presionada;
 					teclaArray[i].tecla_liberada = TRUE;
-					printf("MODULO TECLA:TEC%d Liberada, Tiempo Pulsada %d en Ticks\n",i+1,teclaArray[i].tiempo_tecla_presionada);
 					gpioWrite(GPIO0,OFF); //DEBUG con Analizador Logico
 				}
 				break;
