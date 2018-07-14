@@ -26,4 +26,4 @@
 #PROJECT_NAME = mpu9250
 
 PROJECT_PATH = practicas
-PROJECT_NAME = practica_01_03
+PROJECT_NAME = practica_01_04
