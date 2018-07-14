@@ -69,7 +69,7 @@ void debounceTecUpdate(void* taskParmPtr){
 				}
 				break;
 			default:
-				debugPrintlnString("MODULO TECLA ESTADO INCORRECTO");			//que hubo un error en la FSM
+				debugPrintlnString("MODULO TECLA ESTADO INCORRECTO\n");			//que hubo un error en la FSM
 				break;
 			}
 		}
