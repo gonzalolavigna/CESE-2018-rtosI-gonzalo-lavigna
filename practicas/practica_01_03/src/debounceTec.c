@@ -79,7 +79,9 @@ void debounceTecUpdate(void* taskParmPtr){
 }
 
 bool_t getTeclaLiberada (buttonGpioIndex_t tecla_index){
-	return teclaArray[tecla_index].tecla_liberada;
+	bool_t return_value = teclaArray[tecla_index].tecla_liberada;
+	teclaArray[tecla_index].tecla_liberada = FALSE;
+	return return_value;
 }
 TickType_t getTeclaTiempoPresionada (buttonGpioIndex_t tecla_index){
 	return teclaArray[tecla_index].tiempo_tecla_presionada;

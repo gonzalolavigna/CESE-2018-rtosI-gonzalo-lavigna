@@ -44,7 +44,7 @@ void ledUpdate(void* taskParmPtr){
 					led_array[i].tiempo_restante_led_encendido = led_array[i].tiempo_tecla_presionada - (LEDS_TIME_PERIOD_MS/portTICK_RATE_MS);
 					gpioWrite(led_array[i].led,ON);
 					gpioWrite(GPIO2,ON);
-					printf("Modulo Led: Detecto Tecla%d Liberada con un timepo presionada de %d TICKS",i+1,led_array[i].tiempo_tecla_presionada);
+					printf("Modulo Led: Detecto Tecla%d Liberada con un timepo presionada de %d TICKS\n",i+1,led_array[i].tiempo_tecla_presionada);
 				}
 				break;
 			case LED_ENCENDIDO:
@@ -54,9 +54,9 @@ void ledUpdate(void* taskParmPtr){
 					led_array[i].tiempo_tecla_presionada = 0;
 					gpioWrite(led_array[i].led,OFF);
 					gpioWrite(GPIO2,OFF);
+					printf("Modulo Led%d Tiempo Led Finalizado\n:",i+1);
 				}
 				led_array[i].tiempo_restante_led_encendido -= (LEDS_TIME_PERIOD_MS/portTICK_RATE_MS);
-				printf("Modulo Led:Timepo Restante LED%d encendido %d TICKS ",i+1,led_array[i].tiempo_restante_led_encendido);
 				break;
 			default:
 				debugPrintlnString("MODULO LED ESTADO INCORRECTO\n");			//que hubo un error en la FSM
