@@ -40,13 +40,14 @@
 #include "task.h"
 #include "sapi.h"
 
+DEBUG_PRINT_ENABLE
+
 /*==================[definiciones y macros]==================================*/
 
 /*==================[definiciones de datos internos]=========================*/
 
 /*==================[definiciones de datos externos]=========================*/
 
-DEBUG_PRINT_ENABLE;
 
 /*==================[declaraciones de funciones internas]====================*/
 
@@ -62,9 +63,8 @@ int main(void)
    boardConfig();
 
    // UART for debug messages
-   debugPrintConfigUart( UART_USB, 115200 );
-   debugPrintlnString( "Practica 01 Ejercicio 03 con freeRTOS y sAPI." );
 
+   printf( "Practica 01 Ejercicio 04 con freeRTOS y sAPI.\r\n\n" );
 
    // Crear tarea en freeRTOS
    xTaskCreate(
@@ -84,9 +84,10 @@ int main(void)
       0                           // Puntero a la tarea creada en el sistema
    );
 
-   uartConfig( UART_USB, 115200 );
-   sw_uart_config(300,GPIO0);
 
+   //
+   uartConfig( UART_USB, 115200 );
+   sw_uart_config(10,GPIO0);
    // Iniciar scheduler
    vTaskStartScheduler();
 

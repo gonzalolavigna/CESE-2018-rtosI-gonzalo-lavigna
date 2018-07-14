@@ -1,6 +1,5 @@
 #include "../../practica_01_04/inc/uartgpio.h"
-
-DEBUG_PRINT_ENABLE
+#include "sapi.h"
 
 static bool_t get_new_byte_available (void);
 
@@ -17,13 +16,13 @@ uartData_t uart_gpio;
 
 bool_t sw_uart_config (uint16_t baudrate, gpioMap_t gpio_uart){
 	if(baudrate > MAX_BAUD_RATE){
-		debugPrintlnString("UART GPIO: Baud Rate configurado > 500 bps");
+		printf("UART GPIO ERROR: Baud Rate configurado > 500 bps\r\n\n");
 		return FALSE;
 	}
 	else if(baudrate == 0){
-		uart_gpio.uart_delay = (TickType_t) ((1/BAUD_RATE_DEFAULT)*1000)/portTICK_PERIOD_MS;
+		uart_gpio.uart_delay = (TickType_t) ((1000/BAUD_RATE_DEFAULT))/portTICK_PERIOD_MS;
 	} else {
-		uart_gpio.uart_delay = (TickType_t) ((1/baudrate)*1000)/portTICK_PERIOD_MS;
+		uart_gpio.uart_delay = (TickType_t) ((1000/baudrate))/portTICK_PERIOD_MS;
 	}
 
 	uart_gpio.byte_a_transmitir = 0;
@@ -32,7 +31,7 @@ bool_t sw_uart_config (uint16_t baudrate, gpioMap_t gpio_uart){
 
 	uart_gpio.uart_state = UART_GPIO_IDLE;
 	uart_gpio.new_byte_available = FALSE;
-	printf("UART GPIO: UART Configurada a un Tiempo de Bit en Ticks:%d por Puerto EDU-CIAA:%d",uart_gpio.uart_delay,uart_gpio.gpio_uart);
+	printf("UART GPIO: UART Configurada a un Tiempo de Bit en Ticks:%d por Puerto EDU-CIAA:%d\r\n\n",uart_gpio.uart_delay,uart_gpio.gpio_uart);
 	return TRUE;
 }
 
@@ -103,7 +102,7 @@ void sw_uart_update(void * taskParmPtr){
 			uart_gpio.uart_state = UART_GPIO_IDLE;
 			break;
 		default:
-			debugPrintlnString("UART GPIO:ESTADO INCORRECTO\n");
+			printf("UART GPIO:ESTADO INCORRECTO\r\n\n");
 			break;
 		}
 
