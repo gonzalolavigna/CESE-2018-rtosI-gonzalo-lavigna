@@ -13,9 +13,17 @@
 #PROJECT_PATH = examples/c/sapi/bare_metal
 #PROJECT_NAME = sapi_basic_example
 
+PROJECT_PATH = examples/c/sapi/bare_metal
+PROJECT_NAME = keypad_7segment_01
+
 # ---------- Example of path outside this file folder ------------------
 #PROJECT_PATH = ../examples/c/sapi/bare_metal
 #PROJECT_NAME = sapi_basic_example
+
+
+
+#PROJECT_PATH = examples/c/sapi/operating_systems/free_rtos/dynamic_mem
+#PROJECT_NAME = freeRTOS_03_ChanFatFS_SPI_SdCard_ADC_log
 
 
 
