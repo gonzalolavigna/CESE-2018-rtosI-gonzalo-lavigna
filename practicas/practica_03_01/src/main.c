@@ -48,6 +48,7 @@
 #define RISING_EDGE 0
 #define FALLING_EDGE 1
 
+//MENSAJE entre las ISR y la tarea de las teclas.
 typedef struct {
 	TickType_t 	eventTickTime;
 	gpioMap_t	tecla;
@@ -56,49 +57,59 @@ typedef struct {
 
 
 typedef enum {BUTTON_DOWN = 0,  BUTTON_UP} buttonState_t;
-
 typedef struct {
 	buttonState_t 	state;
 	TickType_t 		lastTickCount;
 } debounceState_t;
-
 debounceState_t buttonArray[4];
 
-
-typedef enum {LED_ON = 0, LED_OFF} ledState_t;
-
+//MENSAJE entre la tarea del teclado y los leds.
 typedef struct {
-	gpioMap_t 		led;
-	ledState_t 	 	state;
-	TickType_t 		count_time;
-	TickType_t 		actual_toggle_time;
-	TickType_t 		next_toggle_time;
-	bool_t 			new_configuration;
-}ledFSMState_t;
+    TickType_t eventTickTime;
+    gpioMap_t tecla;
+} messageToLedUpdate_t;
 
-ledFSMState_t ledArray[4];
+
+
+//MENSAJE de LOG entre las distintas tareas
+typedef enum {TECLA_TASK = 0, LED_TASK} taskOrigin_t;
+#define MAX_MESSAGE_LENGTH 256
+typedef struct {
+    taskOrigin_t origin;
+    uint8_t messageToPrint[MAX_MESSAGE_LENGTH];
+} messageToLogger_t;
+
 
 
 /*==================[definiciones de datos internos]=========================*/
 
 QueueHandle_t queueISRToDebounceTec;
+QueueHandle_t queueTecToLed;
+QueueHandle_t queueLogger;
 
 /*==================[definiciones de datos externos]=========================*/
 
 DEBUG_PRINT_ENABLE;
 
 /*==================[declaraciones de funciones internas]====================*/
+//Funciones asociadas a las interrupciones
 void initIRQ(void);
-void debounceTec(void* taskParmPtr);
-void debounceTecInit(void);
+void serveGPIO_IRQ (gpioMap_t tecla, uint8_t edge);
 
+//Funciones asociadas a los leds
 void ledUpdate(void *taskParmPtr);
 void ledInit(void);
 
+//Funciones asociadas a los LEDs.
+void debounceTec(void* taskParmPtr);
+void debounceTecInit(void);
 uint8_t getTeclaIndice(messageToDebounceTec_t meesage);
 void getEdgePrintMessage(messageToDebounceTec_t message,uint8_t * buffer);
 
-void serveGPIO_IRQ (gpioMap_t tecla, uint8_t edge);
+
+//Logger
+void logger(void* taskParmPtr);
+
 
 /*==================[declaraciones de funciones externas]====================*/
 
@@ -120,8 +131,16 @@ int main(void)
 
    queueISRToDebounceTec = xQueueCreate(10,sizeof(messageToDebounceTec_t));
    if(queueISRToDebounceTec == NULL)
-	   uartWriteString(UART_USB,"COLA NO CREADA\r\n");
-
+	   uartWriteString(UART_USB,"COLA ISR a Teclas NO CREADA\r\n");
+   
+   queueTecToLed = xQueueCreate(10,sizeof(messageToLedUpdate_t));
+   if(queueTecToLed == NULL)
+        uartWriteString(UART_USB,"COLA TEC a LED NO CREADA\r\n");
+   
+   queueLogger = xQueueCreate(10,sizeof(messageToLogger_t));
+   if(queueLogger == NULL)
+        uartWriteString(UART_USB,"COLA LOGGER NO CREADA\r\n");
+   
    debounceTecInit();
    ledInit();
    initIRQ();
@@ -132,19 +151,30 @@ int main(void)
 		   (const char *)"debounceTec",     // Nombre de la tarea como String amigable para el usuario
 		   configMINIMAL_STACK_SIZE*2, // Cantidad de stack de la tarea
 		   0,                          // Parametros de tarea
-		   tskIDLE_PRIORITY+1,         // Prioridad de la tarea
+		   tskIDLE_PRIORITY+2,         // Prioridad de la tarea
 		   0                           // Puntero a la tarea creada en el sistema
    );
+
 
    // Crear tarea en freeRTOS
    xTaskCreate(
 		   ledUpdate,                     // Funcion de la tarea a ejecutar
-		   (const char *)"debounceTec",     // Nombre de la tarea como String amigable para el usuario
+		   (const char *)"ledUpdate",     // Nombre de la tarea como String amigable para el usuario
 		   configMINIMAL_STACK_SIZE*2, // Cantidad de stack de la tarea
 		   0,                          // Parametros de tarea
 		   tskIDLE_PRIORITY+2,         // Prioridad de la tarea
 		   0                           // Puntero a la tarea creada en el sistema
    );
+   
+      xTaskCreate(
+		   logger,                     // Funcion de la tarea a ejecutar
+		   (const char *)"logger",     // Nombre de la tarea como String amigable para el usuario
+		   configMINIMAL_STACK_SIZE*2, // Cantidad de stack de la tarea
+		   0,                          // Parametros de tarea
+		   tskIDLE_PRIORITY+1,         // Prioridad de la tarea
+		   0                           // Puntero a la tarea creada en el sistema
+   );
+   
 
    vTaskStartScheduler();
 
@@ -307,6 +337,10 @@ void debounceTecInit(void){
 
 void debounceTec(void* taskParmPtr){
 	messageToDebounceTec_t messageFromQueue;
+    messageToLedUpdate_t   messageToQueueLedUpdate;
+    messageToLogger_t messageToLogger;
+    messageToLogger.origin =  TECLA_TASK;
+    
 	uint8_t print_buffer[20];
 	uint8_t tecla_indice;
 	while(1){
@@ -316,8 +350,10 @@ void debounceTec(void* taskParmPtr){
 			case BUTTON_UP:
 				if(messageFromQueue.flancoTecla == FALLING_EDGE){
 					if((messageFromQueue.eventTickTime - buttonArray[tecla_indice].lastTickCount) > (40/portTICK_RATE_MS) )
-						printf("EVENTO TEC%d LIBERADA por un tiempo de %d TICKS\r\n",tecla_indice+1,messageFromQueue.eventTickTime - buttonArray[tecla_indice].lastTickCount);
-
+						sprintf(messageToLogger.messageToPrint,"EVENTO TEC%d LIBERADA por un tiempo de %d TICKS\r\n",tecla_indice+1,messageFromQueue.eventTickTime - buttonArray[tecla_indice].lastTickCount);
+                        if(xQueueSend(queueLogger,&messageToLogger,10) != pdTRUE){
+                            printf("COLA DEL LOGGER LLENA");
+                        }    
 						buttonArray[tecla_indice].state = BUTTON_DOWN;
 						buttonArray[tecla_indice].lastTickCount = messageFromQueue.eventTickTime;
 				}
@@ -325,8 +361,16 @@ void debounceTec(void* taskParmPtr){
 			case BUTTON_DOWN:
 				if(messageFromQueue.flancoTecla == RISING_EDGE){
 					if((messageFromQueue.eventTickTime - buttonArray[tecla_indice].lastTickCount) > (40/portTICK_RATE_MS) )
-						printf("EVENTO TEC%d PULSADA por un tiempo de %d TICKS\r\n",tecla_indice,messageFromQueue.eventTickTime - buttonArray[tecla_indice].lastTickCount);
-
+						sprintf(messageToLogger.messageToPrint,"EVENTO TEC%d PULSADA por un tiempo de %d TICKS\r\n",tecla_indice+1,messageFromQueue.eventTickTime - buttonArray[tecla_indice].lastTickCount);
+                        if(xQueueSend(queueLogger,&messageToLogger,10) != pdTRUE){
+                            printf("COLA DEL LOGGER LLENA");
+                        }    
+                        //Envio el mensaje por el tiempo que tienen que estar encendidos los leds.
+                        messageToQueueLedUpdate.eventTickTime = messageFromQueue.eventTickTime - buttonArray[tecla_indice].lastTickCount;
+                        messageToQueueLedUpdate.tecla = tecla_indice;                        
+                        if(xQueueSend(queueTecToLed,&messageToQueueLedUpdate,10) != pdTRUE){
+                            printf("COLA DE MENSAJES LLENA DESDE EL TECLADO HASTA LOS LEDS");
+                        }                                           
 						buttonArray[tecla_indice].state = BUTTON_UP;
 						buttonArray[tecla_indice].lastTickCount = messageFromQueue.eventTickTime;
 				}
@@ -372,33 +416,62 @@ void getEdgePrintMessage(messageToDebounceTec_t message,uint8_t * buffer){
 
 
 void ledInit(void){
-	ledArray[0].actual_toggle_time = 0;
-	ledArray[0].count_time = 0;
-	ledArray[0].led = LEDB;
-	ledArray[0].new_configuration = FALSE;
-	ledArray[0].next_toggle_time = 0;
-	ledArray[0].state = LED_OFF;
+    gpioWrite(LEDB,OFF);
+}
 
-	ledArray[0].actual_toggle_time = 0;
-	ledArray[0].count_time = 0;
-	ledArray[0].led = LED1;
-	ledArray[0].new_configuration = FALSE;
-	ledArray[0].next_toggle_time = 0;
-	ledArray[0].state = LED_OFF;
+void ledUpdate(void *taskParmPtr){
+    messageToLedUpdate_t messageFromQueueTec;
+    messageToLogger_t messageToLogger;
+    messageToLogger.origin =  LED_TASK;
+   
+    
+    TickType_t togglePeriod;
 
-	ledArray[0].actual_toggle_time = 0;
-	ledArray[0].count_time = 0;
-	ledArray[0].led = LED2;
-	ledArray[0].new_configuration = FALSE;
-	ledArray[0].next_toggle_time = 0;
-	ledArray[0].state = LED_OFF;
+    if(xQueueReceive(queueTecToLed,&messageFromQueueTec,portMAX_DELAY) == pdTRUE){        
+        sprintf(messageToLogger.messageToPrint,"LED BLUE NEW PERIOD TICKS:%d desde la TECLA:%d\r\n",messageFromQueueTec.eventTickTime,messageFromQueueTec.tecla+1);       
+        if(xQueueSend(queueLogger,&messageToLogger,10) != pdTRUE){
+            printf("COLA DEL LOGGER LLENA");
+        }        
+        togglePeriod = messageFromQueueTec.eventTickTime;
+    }
+    else {
+         printf("ERROR en LEDUPDATE\r\n");
+    }       
+     while(1){     
+        //Duermo la tarea y me fijo si hay un nuevo mensaje por la cola
+        if(xQueueReceive(queueTecToLed,&messageFromQueueTec,togglePeriod)== pdTRUE){
+            //Si hay mensaje por la cola actualiza el periodo de toggleo, se adopta el criterio que un semiciclo debe finalizarse para cambiar.
+            //Con una pequeña maquina de estado podria solo en bajo
+            sprintf(messageToLogger.messageToPrint,"LED BLUE NEW PERIOD TICKS:%d desde la TECLA:%d\r\n",messageFromQueueTec.eventTickTime,messageFromQueueTec.tecla+1);
+            if(xQueueSend(queueLogger,&messageToLogger,10) != pdTRUE){
+                printf("COLA DEL LOGGER LLENA");
+            }    
+            togglePeriod = messageFromQueueTec.eventTickTime;
+        }
+        else {
+            //Si no hay nuevo mensaje por la cola hago el toggle de los leds, como tiene que togglear al doble del periodo de pulsacion
+            //En cada semiciclo que se actualiza la tarea toggle.
+            gpioToggle(LEDB);
+        }
+    }
+}
 
-	ledArray[0].actual_toggle_time = 0;
-	ledArray[0].count_time = 0;
-	ledArray[0].led = LED3;
-	ledArray[0].new_configuration = FALSE;
-	ledArray[0].next_toggle_time = 0;
-	ledArray[0].state = LED_OFF;
+
+void logger(void* taskParmPtr){
+    messageToLogger_t messageFromTask;
+    while (1){
+            if(xQueueReceive(queueLogger,&messageFromTask,portMAX_DELAY) == pdTRUE){
+                if(messageFromTask.origin == LED_TASK){
+                    printf("LED_TASK: ");
+                    printf("%s",messageFromTask.messageToPrint);
+                }
+                if(messageFromTask.origin == TECLA_TASK){
+                    printf("TECLA_TASK: ");
+                    printf("%s",messageFromTask.messageToPrint);
+                }
+            }            
+    }
+    
 }
 
 /*==================[definiciones de funciones externas]=====================*/
