@@ -322,7 +322,7 @@ void serveGPIO_IRQ (gpioMap_t tecla, uint8_t edge){
 	gpioToggle(GPIO0);
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
-
+/*
 void debounceTecInit(void){
 	buttonArray[0].state = BUTTON_UP;
 	buttonArray[0].lastTickCount = 0;
@@ -384,7 +384,7 @@ void debounceTec(void* taskParmPtr){
 		}
 	}
 }
-
+*/
 uint8_t getTeclaIndice(messageToDebounceTec_t message){
 	uint8_t indice;
 	switch(message.tecla){
@@ -441,7 +441,7 @@ void ledUpdate(void *taskParmPtr){
         //Duermo la tarea y me fijo si hay un nuevo mensaje por la cola
         if(xQueueReceive(queueTecToLed,&messageFromQueueTec,togglePeriod)== pdTRUE){
             //Si hay mensaje por la cola actualiza el periodo de toggleo, se adopta el criterio que un semiciclo debe finalizarse para cambiar.
-            //Con una pequeña maquina de estado podria solo en bajo
+            //Con una pequeï¿½a maquina de estado podria solo en bajo
             sprintf(messageToLogger.messageToPrint,"LED BLUE NEW PERIOD TICKS:%d desde la TECLA:%d\r\n",messageFromQueueTec.eventTickTime,messageFromQueueTec.tecla+1);
             if(xQueueSend(queueLogger,&messageToLogger,10) != pdTRUE){
                 printf("COLA DEL LOGGER LLENA");

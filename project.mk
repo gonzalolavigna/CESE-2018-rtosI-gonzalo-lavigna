@@ -39,7 +39,7 @@
 
 
 PROJECT_PATH = practicas
-PROJECT_NAME = practica_03_01
+PROJECT_NAME = practica_04
 
 #PROJECT_PATH = examples/c/sapi/bare_metal/usb
 #PROJECT_NAME = usb_device_01_hid_keyboard
